@@ -2,6 +2,7 @@
 #define _SERVER_H_
 
 #include <string>
+#include <vector>
 
 #include "common.h"
 

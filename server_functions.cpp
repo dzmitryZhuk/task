@@ -1,5 +1,4 @@
 #include <sstream>
-#include <vector>
 #include <thread>
 
 #include "server_functions.h"
@@ -62,34 +61,74 @@ std::string separateStrCommand(std::string& text)
     return res;
 }
 
-std::vector<char> hash(const std::string& text){
-    std::vector<char> res;
+std::vector<unsigned char> hash(const std::string& text){
+    std::vector<unsigned char> res;
     if(text.empty()) return res;
+
+    auto xorVectors = [](const std::vector<unsigned char>& v1, const std::vector<unsigned char>& v2) -> std::vector<unsigned char> {
+        std::vector<unsigned char> res;
+        if(v1.size() != v2.size()) return res;
+        res.reserve(v1.size());
+        for(int i = 0; i < v1.size(); ++i)
+            res.push_back(v1[i] ^ v2[i]);
+        return res;
+    };
+
+    // function multiply every fragment by the matrix L
+    auto matrixMultiply = [](std::vector<unsigned char>& vec, const std::vector<std::vector<int>> L) -> std::vector<unsigned char> {
+        if(vec.size() != 4) return vec;
+        std::vector<unsigned char> res;
+        for(int i = 0; i < vec.size(); ++i)
+        {
+            res.push_back(0);
+            for(int j = 0; j < vec.size(); ++j)
+                res[i] += vec[j] * L[j][i];
+        }
+        return res;
+    };
+
     // first 4 bytes
     // separete on fragments 4 bytes
-    std::vector<char> four;
-    auto _text = text;
-    std::vector<std::vector<char>> fragments;
+    std::vector<unsigned char> four;
+    std::vector<std::vector<unsigned char>> fragments;
     std::string fragment;
-    for (size_t i = 0; i < _text.size(); i += 4) {
-        fragment = _text.substr(i, 4);
-        std::vector<char> vec(fragment.begin(), fragment.end());
+    for (size_t i = 0; i < text.size(); i += 4) {
+        fragment = text.substr(i, 4);
+        std::vector<unsigned char> vec(fragment.begin(), fragment.end());
         fragments.push_back(vec);
     }
-    // multiply every fragment by the matrix L
-    auto matrixMultiply = [](std::vector<char>& vec, const std::vector<std::vector<int>> L) -> std::vector<char> {
-        // magic
-        // надо подумать что если вектор vec содержит НЕ 4 элемента
-    };
     for(auto& i : fragments)
         i = matrixMultiply(i, L);
     // xor all fragments
     four = fragments[0];
     for(int i = 1; i < fragments.size(); i++)
-    {
-        auto temp = reinterpret_cast<int>(*(fragments[i].data()));  // vector[char] (fragments[i]) -> const char* -> int ???????????
-        four ^= temp;
-    }
+        four = xorVectors(four, fragments[i]);
+
+    res.insert(res.end(), four.begin(), four.end());
     // second 7 bytes
+    std::vector<unsigned char> seven;
+    // xor Sbox
+    auto cur_Sbox = Sbox;
+    for(auto& i : cur_Sbox)
+        i ^= text[0];
+
+    // replace all characters by Sbox
+    fragments.clear();
+    for (size_t i = 0; i < text.size(); i += 7) {
+        std::vector<unsigned char> vec;
+        for(int j = 0; j < 7; j++){
+            if(i + i >= text.size() - 1)
+                break;
+            vec.push_back(cur_Sbox[text[i + j]]);
+        }
+        fragments.push_back(vec);
+    }
+
+    // xor all fragments
+    seven = fragments[0];
+    for(int i = 1; i < fragments.size(); i++)
+        seven = xorVectors(seven, fragments[i]);
+    
+    res.insert(res.end(), seven.begin(), seven.end());
     return res;
 }
