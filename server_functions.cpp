@@ -29,11 +29,11 @@ std::vector<int> Sbox = {
 
 int countWords(const std::string& text)
 {
-    std::stringstream ss(text);
+    std::stringstream temp(text);
     std::string word;
     int count = 0;
 
-    while (ss >> word)
+    while (temp >> word)
         count++;
 
     return count;
@@ -61,31 +61,9 @@ std::string separateStrCommand(std::string& text)
     return res;
 }
 
-std::vector<unsigned char> hash(const std::string& text){
+std::vector<unsigned char> countHash(const std::string& text){
     std::vector<unsigned char> res;
     if(text.empty()) return res;
-
-    auto xorVectors = [](const std::vector<unsigned char>& v1, const std::vector<unsigned char>& v2) -> std::vector<unsigned char> {
-        std::vector<unsigned char> res;
-        if(v1.size() != v2.size()) return res;
-        res.reserve(v1.size());
-        for(int i = 0; i < v1.size(); ++i)
-            res.push_back(v1[i] ^ v2[i]);
-        return res;
-    };
-
-    // function multiply every fragment by the matrix L
-    auto matrixMultiply = [](std::vector<unsigned char>& vec, const std::vector<std::vector<int>> L) -> std::vector<unsigned char> {
-        if(vec.size() != 4) return vec;
-        std::vector<unsigned char> res;
-        for(int i = 0; i < vec.size(); ++i)
-        {
-            res.push_back(0);
-            for(int j = 0; j < vec.size(); ++j)
-                res[i] += vec[j] * L[j][i];
-        }
-        return res;
-    };
 
     // first 4 bytes
     // separete on fragments 4 bytes
@@ -97,6 +75,8 @@ std::vector<unsigned char> hash(const std::string& text){
         std::vector<unsigned char> vec(fragment.begin(), fragment.end());
         fragments.push_back(vec);
     }
+    fillZeros(fragments[fragments.size()-1], 4);
+
     for(auto& i : fragments)
         i = matrixMultiply(i, L);
     // xor all fragments
@@ -105,6 +85,7 @@ std::vector<unsigned char> hash(const std::string& text){
         four = xorVectors(four, fragments[i]);
 
     res.insert(res.end(), four.begin(), four.end());
+    four.clear();
     // second 7 bytes
     std::vector<unsigned char> seven;
     // xor Sbox
@@ -117,12 +98,13 @@ std::vector<unsigned char> hash(const std::string& text){
     for (size_t i = 0; i < text.size(); i += 7) {
         std::vector<unsigned char> vec;
         for(int j = 0; j < 7; j++){
-            if(i + i >= text.size() - 1)
+            if(i + j >= text.size())
                 break;
             vec.push_back(cur_Sbox[text[i + j]]);
         }
         fragments.push_back(vec);
     }
+    fillZeros(fragments[fragments.size()-1], 7);
 
     // xor all fragments
     seven = fragments[0];
@@ -132,3 +114,33 @@ std::vector<unsigned char> hash(const std::string& text){
     res.insert(res.end(), seven.begin(), seven.end());
     return res;
 }
+
+auto xorVectors(const std::vector<unsigned char>& v1, const std::vector<unsigned char>& v2) -> std::vector<unsigned char>
+{
+    if(v1.size() != v2.size()) return v1;
+    std::vector<unsigned char> res;
+    res.reserve(v1.size());
+    for(int i = 0; i < v1.size(); ++i)
+        res.push_back(v1[i] ^ v2[i]);
+    return res;
+};
+
+auto matrixMultiply(std::vector<unsigned char>& vec, const std::vector<std::vector<int>> L) -> std::vector<unsigned char>
+{
+    if(!L.size() || vec.size() != L[0].size()) return vec;
+    std::vector<unsigned char> res;
+    for(int i = 0; i < vec.size(); ++i)
+    {
+        res.push_back(0);
+        for(int j = 0; j < vec.size(); ++j)
+            res[i] += vec[j] * L[j][i];
+    }
+    return res;
+};
+
+void fillZeros(std::vector<unsigned char>& vec, size_t len)
+{
+    while(vec.size() < len)
+        vec.push_back(0);
+};
+

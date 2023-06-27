@@ -11,5 +11,14 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     std::cout << "TEST RUNNING" << std::endl;
+    std::string s;
+    if(argc == 2)
+        s = argv[1];
+    else
+        s = "\ns\na";
+    auto res = countHash(s);
+    for(const auto& i : res)
+        std::cout << "<" << (int)i << ">";
+    std::cout << std::endl;
     return 0;
 }
