@@ -7,6 +7,12 @@
 #include "server_functions.h"
 #include "common.h"
 
+std::string make_string(const boost::asio::streambuf& streambuf)
+{
+  return {boost::asio::buffers_begin(streambuf.data()), 
+          boost::asio::buffers_end(streambuf.data())};
+}
+
 void clientHandler(boost::asio::ip::tcp::socket socket) {
 #ifdef DEBUG
     static int client_count = 0;
@@ -16,15 +22,34 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
     try {
         // reading client data
         boost::asio::streambuf buffer;
-        boost::asio::read_until(socket, buffer, '\n');
-        std::istream input(&buffer);
+
+        // reading command
+        auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)));
+        if(bytes_received != sizeof(Command)) throw "error reading Command";
+
+        const Command* command_ptr = boost::asio::buffer_cast<const Command*>(buffer.data());
+        auto command = *command_ptr;
+        //command = stringToCommand(make_string(buffer));
+        buffer.consume(bytes_received);
+
+        // reading file size
+        filesize_t file_size;
+        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)));
+        if(bytes_received != sizeof(filesize_t)) throw "error reading file size";
+
+        const filesize_t* size_ptr = boost::asio::buffer_cast<const filesize_t*>(buffer.data());
+        auto size = *size_ptr;
+        buffer.consume(bytes_received);
+
+        // read text
         std::string message;
-        std::getline(input, message);
-// #ifdef DEBUG
-//         std::cout << " message from client: " << message << std::endl;
-// #endif
+        message.reserve(size);
+        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size));
+        if(bytes_received != size) throw "error reading file";
+        const char* data = boost::asio::buffer_cast<const char*>(buffer.data());
+        message.append(data, size);
+
         std::string response;
-        auto command = stringToCommand(separateStrCommand(message));
         switch (command)
         {
         case Count:{

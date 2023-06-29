@@ -5,6 +5,8 @@
 
 #define DEBUG
 
+using filesize_t = std::uintmax_t;
+
 enum Command{
     No_command  = 0x0000,
     Hash        = 0x0001,

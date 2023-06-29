@@ -39,27 +39,32 @@ int countWords(const std::string& text)
     return count;
 }
 
-Command stringToCommand(const std::string& str)
-{
-    Command command;
+// Command stringToCommand(const std::string& str)
+// {
+//     auto ptr = str.c_str();
+//     return ptrToCommand((void*)(ptr));
+// }
 
-    int temp = 0;
-    auto ptr = str.c_str();
+// Command ptrToCommand(void * ptr)
+// {
+//     if(!ptr) return No_command;
+//
+//     Command command;
+//     int temp = 0;
+//     for (int i = 0; i < sizeof(decltype(command)); ++i)
+//         temp |= (*((int*)ptr+i)) << (i * 8);
+//     command = static_cast<decltype(command)>(temp);
+//
+//     return command;
+// }
 
-    for (int i = 0; i < sizeof(decltype(command)); ++i)
-        temp |= static_cast<int>(*(ptr+i)) << (i * 8);
-    command = static_cast<decltype(command)>(temp);
-
-    return command;
-}
-
-std::string separateStrCommand(std::string& text)
-{
-    auto res = text.substr(0, sizeof(Command));
-    //auto count = static_cast<std::size_t>(sizeof(Command));
-    text.erase(0, sizeof(Command)); 
-    return res;
-}
+// std::string separateStrCommand(std::string& text)
+// {
+//     auto res = text.substr(0, sizeof(Command));
+//     //auto count = static_cast<std::size_t>(sizeof(Command));
+//     text.erase(0, sizeof(Command)); 
+//     return res;
+// }
 
 std::vector<unsigned char> countHash(const std::string& text){
     std::vector<unsigned char> res;

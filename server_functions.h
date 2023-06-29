@@ -6,8 +6,9 @@
 
 #include "common.h"
 
-Command stringToCommand(const std::string& str);    // converts the bytes of char to Command
-std::string separateStrCommand(std::string& text);  // separate command(bytes of char) from text and returns command
+// Command stringToCommand(const std::string& str);    // converts the bytes of char to Command
+// Command ptrToCommand(void * ptr); // creating command from data under <ptr>
+// std::string separateStrCommand(std::string& text);  // separate command(bytes of char) from text and returns command
 int countWords(const std::string& text);
 std::vector<unsigned char> countHash(const std::string& text);
 
