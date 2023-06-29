@@ -48,14 +48,6 @@ int main(int argc, char* argv[])
         std::cerr << " failed opening file "<< path << std::endl;
         return 0;
     }
-// #if defined(DEBUG) && defined(__linux__)
-//     std::string cc = "cat ";
-//     cc += path;
-//     std::cout << " data <<<\n";
-//     std::system(cc.c_str());
-//     std::cout << " >>>" << std::endl;
-// #endif
-    addCommand(text, command);
     
     // sending
     auto host = "localhost";
@@ -79,6 +71,17 @@ int main(int argc, char* argv[])
     std::cout << " connected to server" << std::endl;
 #endif
 
+        // command sending
+        boost::asio::write(socket, boost::asio::buffer(&command, sizeof(decltype(command))));
+#ifdef DEBUG
+    std::cout << " command <" << command << "> sent" << std::endl;
+#endif
+        // file size sending
+        auto size = getFileSize(path);
+        boost::asio::write(socket, boost::asio::buffer(&size, sizeof(decltype(size))));
+#ifdef DEBUG
+    std::cout << " size <" << size << "> sent" << std::endl;
+#endif
         // message sending
         boost::asio::write(socket, boost::asio::buffer(text));
 #ifdef DEBUG
