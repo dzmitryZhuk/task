@@ -3,6 +3,20 @@
 
 #include "server_functions.h"
 
+int countWords(const std::string& text)
+{
+    std::stringstream temp(text);
+    std::string word;
+    int count = 0;
+
+    while (temp >> word)
+        count++;
+
+    return count;
+}
+
+//-------------------------------------------------
+
 std::vector<std::vector<int>> L =   {{0x2, 0x3, 0x1, 0x1},
                                     {0x1, 0x2, 0x3, 0x1},
                                     {0x1, 0x1, 0x2, 0x3},
@@ -26,45 +40,6 @@ std::vector<int> Sbox = {
         0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf, 
         0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
     };
-
-int countWords(const std::string& text)
-{
-    std::stringstream temp(text);
-    std::string word;
-    int count = 0;
-
-    while (temp >> word)
-        count++;
-
-    return count;
-}
-
-// Command stringToCommand(const std::string& str)
-// {
-//     auto ptr = str.c_str();
-//     return ptrToCommand((void*)(ptr));
-// }
-
-// Command ptrToCommand(void * ptr)
-// {
-//     if(!ptr) return No_command;
-//
-//     Command command;
-//     int temp = 0;
-//     for (int i = 0; i < sizeof(decltype(command)); ++i)
-//         temp |= (*((int*)ptr+i)) << (i * 8);
-//     command = static_cast<decltype(command)>(temp);
-//
-//     return command;
-// }
-
-// std::string separateStrCommand(std::string& text)
-// {
-//     auto res = text.substr(0, sizeof(Command));
-//     //auto count = static_cast<std::size_t>(sizeof(Command));
-//     text.erase(0, sizeof(Command)); 
-//     return res;
-// }
 
 std::vector<unsigned char> countHash(const std::string& text){
     std::vector<unsigned char> res;
