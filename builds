@@ -1,3 +1,0 @@
-g++ -o server server.cpp server_functions.cpp common.cpp
-
-g++ -o client client.cpp client_functions.cpp common.cpp
