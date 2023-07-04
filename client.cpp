@@ -9,18 +9,18 @@
 
 int main(int argc, char* argv[])
 {
+    if(argc < 2 || argc > 3)
+    {
+        std::cout << " 2 arguments required: file path and command" << std::endl;
+        std::cout << " write argument --help for more information" << std::endl;
+        return 0;
+    }
     if(std::string(argv[1]) == std::string("--help"))
     {
         std::cout << " run with 2 arguments: [file path], [command];" << std::endl;
         std::cout << "   commands:" << std::endl;
         std::cout << "     -h - get hash of file text" << std::endl;
         std::cout << "     -c - count words of file text" << std::endl;
-        return 0;
-    }
-    if(argc < 3)
-    {
-        std::cout << " 2 arguments required: file path and command" << std::endl;
-        std::cout << " write argument --help for more information" << std::endl;
         return 0;
     }
     
@@ -43,21 +43,31 @@ int main(int argc, char* argv[])
     {
         text = readText(path);
     }
-    catch(...)
-    {
-        std::cerr << " failed opening file "<< path << std::endl;
+    catch (const std::exception& e) {
+        std::cerr << " failed reading text from file" << std::endl;
+        std::cerr << " error: " << e.what() << std::endl;
+        return 0;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
         return 0;
     }
     
     // sending
-    auto host = "localhost";
+    std::string host = "192.168.100.3";
     auto port = 8095;   // default port
     try{
         auto config_name = "config.txt";
         port = config_get_port(config_name);
+        host = config_get_host(config_name);
     }
-    catch(...){
-        std::cerr << " failed opening config file; used default parameters" << std::endl;
+    catch (const std::exception& e) {
+        std::cerr << " failed reading config file. used default settings" << std::endl;
+        std::cerr << e.what() << std::endl;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
+        std::cerr << " used default settings" << std::endl;
     }
     try{
         boost::asio::io_context ioContext;
@@ -107,8 +117,11 @@ int main(int argc, char* argv[])
         
         socket.close();
     }
-    catch(std::exception& e){
+    catch(const std::exception& e){
         std::cerr << " error: " << e.what() << std::endl;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
     }
 
     return 0;
