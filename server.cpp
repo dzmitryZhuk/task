@@ -25,7 +25,8 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
 
         // reading command
         auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)));
-        if(bytes_received != sizeof(Command)) throw "error reading Command";
+        if(bytes_received != sizeof(Command))
+            throw 1;
 
         const Command* command_ptr = boost::asio::buffer_cast<const Command*>(buffer.data());
         auto command = *command_ptr;
@@ -35,7 +36,8 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         // reading file size
         filesize_t file_size;
         bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)));
-        if(bytes_received != sizeof(filesize_t)) throw "error reading file size";
+        if(bytes_received != sizeof(filesize_t))
+            throw 1;
 
         const filesize_t* size_ptr = boost::asio::buffer_cast<const filesize_t*>(buffer.data());
         auto size = *size_ptr;
@@ -45,7 +47,8 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         std::string message;
         message.reserve(size);
         bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size));
-        if(bytes_received != size) throw "error reading file";
+        if(bytes_received != size) 
+            throw 1;
         const char* data = boost::asio::buffer_cast<const char*>(buffer.data());
         message.append(data, size);
 
@@ -72,8 +75,11 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         std::cout << " sending response: " << response << std::endl;
 #endif
         boost::asio::write(socket, boost::asio::buffer(response));
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         std::cerr << " error: " << e.what() << std::endl;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
     }
 }
 
@@ -84,8 +90,13 @@ int main(int argc, char* argv[])
         auto config_name = "config.txt";
         port = config_get_port(config_name);
     }
-    catch(...){
-        std::cerr << " failed opening config file; used default parameters" << std::endl;
+    catch (const std::exception& e) {
+        std::cerr << " failed reading config file. used default settings" << std::endl;
+        std::cerr << e.what() << std::endl;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
+        std::cerr << " used default settings" << std::endl;
     }
 
     //
@@ -103,8 +114,11 @@ int main(int argc, char* argv[])
             std::thread thread(clientHandler, std::move(socket));
             thread.detach();
         }
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         std::cerr << " error: " << e.what() << std::endl;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
     }
     return 0;
 }

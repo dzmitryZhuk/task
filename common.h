@@ -2,6 +2,7 @@
 #define _COMMON_H_
 
 #include <string>
+#include <exception>
 
 #define DEBUG
 
@@ -14,5 +15,6 @@ enum class Command{
 };
 
 int config_get_port(const std::string& config_path);
+std::string config_get_host(const std::string& config_path);
 
 #endif

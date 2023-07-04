@@ -14,7 +14,7 @@ std::string readText(const std::string& path)
             text += line + "\n";
         file.close();
     } else {
-        throw "failed opening file";
+        throw " failed reading text from file";
     }
 
     return text;    
