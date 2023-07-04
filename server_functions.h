@@ -16,7 +16,7 @@ std::vector<unsigned char> xorVectors(const std::vector<unsigned char>& v1, cons
 // function multiply every fragment by the matrix L
 std::vector<unsigned char> matrixMultiply(std::vector<unsigned char>& vec, const std::vector<std::vector<int>> L);
 // function that fills the vector <vec> with zeros to the end up to size <len>
-void fillZeros(std::vector<unsigned char>& vec, size_t len);
+void fillZeros(std::vector<unsigned char>& vec, const size_t& len);
 
 // --------------
 

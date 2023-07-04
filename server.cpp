@@ -52,16 +52,16 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         std::string response;
         switch (command)
         {
-        case Count:{
+        case Command::Count:{
             response = std::to_string(countWords(message));
             break;
         }
-        case Hash:{
+        case Command::Hash:{
             auto temp = countHash(message);
             response = std::string(temp.begin(), temp.end());
             break;
         }
-        case No_command:
+        case Command::No_command:
         default:
             std::cerr << " error command" << std::endl;
             break;

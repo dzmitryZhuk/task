@@ -118,7 +118,7 @@ auto matrixMultiply(std::vector<unsigned char>& vec, const std::vector<std::vect
     return res;
 };
 
-void fillZeros(std::vector<unsigned char>& vec, size_t len)
+void fillZeros(std::vector<unsigned char>& vec, const size_t& len)
 {
     while(vec.size() < len)
         vec.push_back(0);
