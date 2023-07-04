@@ -7,7 +7,7 @@
 
 using filesize_t = std::uintmax_t;
 
-enum Command{
+enum class Command{
     No_command  = 0x0000,
     Hash        = 0x0001,
     Count       = 0x0002,

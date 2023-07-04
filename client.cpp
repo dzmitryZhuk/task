@@ -26,12 +26,12 @@ int main(int argc, char* argv[])
     
     std::string path = argv[1];
     std::string com = argv[2];
-    Command command = No_command;
+    Command command = Command::No_command;
 
     if(com == "-h"){
-        command = Hash;        
+        command = Command::Hash;        
     } else if(com == "-c"){
-        command = Count;
+        command = Command::Count;
     }
     else{
         std::cout << " undefined command" << std::endl;
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
         // command sending
         boost::asio::write(socket, boost::asio::buffer(&command, sizeof(decltype(command))));
 #ifdef DEBUG
-    std::cout << " command <" << command << "> sent" << std::endl;
+    std::cout << " command <" << static_cast<int>(command) << "> sent" << std::endl;
 #endif
         // file size sending
         auto size = getFileSize(path);
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         std::string response;
         std::getline(input, response);
         std::cout << " server response: ";
-        if(command == Count)
+        if(command == Command::Count)
             std::cout << response;
         else
             for(const auto& i : response)
