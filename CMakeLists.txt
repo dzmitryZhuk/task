@@ -6,12 +6,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_BINARY_DIR ${PROJECT_SOURCE_DIR}/bin)
 
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+set(BOOST_ROOT /usr/include)
 include_directories(${Boost_INCLUDE_DIR})
 
-set(SOURCES_COMMON "${PROJECT_SOURCE_DIR}/src/common")
-set(SOURCES_CLIENT "${PROJECT_SOURCE_DIR}/src/client")
-set(SOURCES_SERVER "${PROJECT_SOURCE_DIR}/src/server")
+set(DIR_SOURCES_COMMON "${PROJECT_SOURCE_DIR}/src/common")
+set(DIR_SOURCES_CLIENT "${PROJECT_SOURCE_DIR}/src/client")
+set(DIR_SOURCES_SERVER "${PROJECT_SOURCE_DIR}/src/server")
+file(GLOB SOURCES_COMMON "${DIR_SOURCES_COMMON}/*.cpp" "${DIR_SOURCES_COMMON}/*.h")
+file(GLOB SOURCES_CLIENT "${DIR_SOURCES_CLIENT}/*.cpp" "${DIR_SOURCES_CLIENT}/*.h")
+file(GLOB SOURCES_SERVER "${DIR_SOURCES_SERVER}/*.cpp" "${DIR_SOURCES_SERVER}/*.h")
+
+include_directories(${DIR_SOURCES_COMMON})
+include_directories(${DIR_SOURCES_CLIENT})
+include_directories(${DIR_SOURCES_SERVER})
 
 add_executable(client
     ${SOURCES_COMMON}

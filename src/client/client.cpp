@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     }
     
     // sending
-    std::string host = "192.168.100.3";
+    std::string host = "localhost";
     auto port = 8095;   // default port
     try{
         auto config_name = "config.txt";
