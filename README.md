@@ -5,7 +5,7 @@
 
 
 ## build:
-  1. clone git
-  2. cd build
-  3. cmake ..
-  4. make
+  clone git
+  1. cd build
+  2. cmake ..
+  3. make
