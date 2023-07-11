@@ -72,7 +72,13 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         response += '\n';
         // sending response
 #ifdef DEBUG
-        std::cout << " sending response: " << response << std::endl;
+        std::cout << " sending response: ";
+        if(command == Command::Count)
+            std::cout << response;
+        else
+            for(const auto& i : response)
+                std::cout << std::hex << static_cast<int>(i);
+        std::cout << std::endl;
 #endif
         boost::asio::write(socket, boost::asio::buffer(response));
     } catch (const std::exception& e) {
