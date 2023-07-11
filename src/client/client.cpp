@@ -21,6 +21,7 @@ int main(int argc, char* argv[])
         std::cout << "   commands:" << std::endl;
         std::cout << "     -h - get hash of file text" << std::endl;
         std::cout << "     -c - count words of file text" << std::endl;
+        std::cout << " Example <client /home/file_with_text.txt -c>" << std::endl;
         return 0;
     }
     
