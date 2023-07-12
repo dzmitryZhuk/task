@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
     // sending
     std::string host = "localhost";
     auto port = 8095;   // default port
+    auto config_name = "config.txt";
     try{
-        auto config_name = "config.txt";
         port = config_get_port(config_name);
         host = config_get_host(config_name);
     }

@@ -92,8 +92,8 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
 int main(int argc, char* argv[])
 {
     auto port = 8095;   // default port
+    auto config_name = "config.txt";
     try{
-        auto config_name = "config.txt";
         port = config_get_port(config_name);
     }
     catch (const std::exception& e) {

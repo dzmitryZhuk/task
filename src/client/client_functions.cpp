@@ -10,8 +10,10 @@ std::string readText(const std::string& path)
 
     if (file.is_open()) {
         std::string line;
-        while (std::getline(file, line))
-            text += line + "\n";
+        while (std::getline(file, line)){
+            line.push_back('\n');
+            text += line;
+        }
         file.close();
     } else {
         throw " failed reading text from file";
