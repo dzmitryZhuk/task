@@ -15,13 +15,13 @@ int main(int argc, char* argv[])
         std::cout << " write argument --help for more information" << std::endl;
         return 0;
     }
-    if(std::string(argv[1]) == std::string("--help"))
+    if(std::string(argv[1]) == std::string("-help"))
     {
         std::cout << " run with 2 arguments: [file path], [command];" << std::endl;
         std::cout << "   commands:" << std::endl;
-        std::cout << "     -h - get hash of file text" << std::endl;
-        std::cout << "     -c - count words of file text" << std::endl;
-        std::cout << " Example <client /home/file_with_text.txt -c>" << std::endl;
+        std::cout << "     -hash - get hash of file text" << std::endl;
+        std::cout << "     -count - count words of file text" << std::endl;
+        std::cout << " Example <client /home/file_with_text.txt -count>" << std::endl;
         return 0;
     }
     
@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
     std::string com = argv[2];
     Command command = Command::No_command;
 
-    if(com == "-h"){
+    if(com == "-hash"){
         command = Command::Hash;        
-    } else if(com == "-c"){
+    } else if(com == "-count"){
         command = Command::Count;
     }
     else{
