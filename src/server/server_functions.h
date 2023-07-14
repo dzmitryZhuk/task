@@ -3,10 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <array>
 
 #include "common.h"
 
-int countWords(const std::string& text);
+size_t countWords(const std::string& text);
 std::vector<unsigned char> countHash(const std::string& text);
 
 // -------------- functions for hash processing

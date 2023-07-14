@@ -4,11 +4,11 @@
 
 #include "server_functions.h"
 
-int countWords(const std::string& text)
+size_t countWords(const std::string& text)
 {
     std::stringstream temp(text);
     std::string word;
-    int count = 0;
+    size_t count = 0;
 
     while (temp >> word)
         count++;
@@ -18,12 +18,14 @@ int countWords(const std::string& text)
 
 //-------------------------------------------------
 
-std::vector<std::vector<int>> L =   {{0x2, 0x3, 0x1, 0x1},
-                                    {0x1, 0x2, 0x3, 0x1},
-                                    {0x1, 0x1, 0x2, 0x3},
-                                    {0x3, 0x1, 0x1, 0x2}};
+std::array<std::array<int, 4>, 4> L = {{
+    {{0x2, 0x3, 0x1, 0x1}},
+    {{0x1, 0x2, 0x3, 0x1}},
+    {{0x1, 0x1, 0x2, 0x3}},
+    {{0x3, 0x1, 0x1, 0x2}}
+}};
 
-std::vector<int> Sbox = {
+std::array Sbox = {
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
         0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
         0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, 
@@ -78,8 +80,8 @@ std::vector<unsigned char> countHash(const std::string& text){
         std::vector<std::vector<unsigned char>> fragments;
         // xor Sbox
         auto cur_Sbox = Sbox;
-        for(auto& i : cur_Sbox)
-            i ^= text[0];
+        for(int i = 0; i < sizeof(cur_Sbox)/sizeof(int); ++i)
+            cur_Sbox[i] ^= text[0];
 
         // replace all characters by Sbox
         fragments.clear();
@@ -120,7 +122,7 @@ auto xorVectors(const std::vector<unsigned char>& v1, const std::vector<unsigned
     return res;
 };
 
-auto matrixMultiply(std::vector<unsigned char>& vec, const std::vector<std::vector<int>> L) -> std::vector<unsigned char>
+auto matrixMultiply(std::vector<unsigned char>& vec, const std::array<std::array<int, 4>, 4>& L) -> std::vector<unsigned char>
 {
     if(!L.size() || vec.size() != L[0].size()) return vec;
     std::vector<unsigned char> res;
