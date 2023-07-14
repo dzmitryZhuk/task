@@ -112,7 +112,7 @@ std::vector<unsigned char> countHash(const std::string& text){
     return res;
 }
 
-auto xorVectors(const std::vector<unsigned char>& v1, const std::vector<unsigned char>& v2) -> std::vector<unsigned char>
+std::vector<unsigned char> xorVectors(const std::vector<unsigned char>& v1, const std::vector<unsigned char>& v2)
 {
     if(v1.size() != v2.size()) return v1;
     std::vector<unsigned char> res;
@@ -122,7 +122,7 @@ auto xorVectors(const std::vector<unsigned char>& v1, const std::vector<unsigned
     return res;
 };
 
-auto matrixMultiply(std::vector<unsigned char>& vec, const std::array<std::array<int, 4>, 4>& L) -> std::vector<unsigned char>
+std::vector<unsigned char> matrixMultiply(std::vector<unsigned char>& vec, const std::array<std::array<int, 4>, 4>& L)
 {
     if(!L.size() || vec.size() != L[0].size()) return vec;
     std::vector<unsigned char> res;

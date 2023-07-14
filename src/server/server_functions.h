@@ -15,7 +15,7 @@ std::vector<unsigned char> countHash(const std::string& text);
 // function that xor two vectors and return result
 std::vector<unsigned char> xorVectors(const std::vector<unsigned char>& v1, const std::vector<unsigned char>& v2);
 // function multiply every fragment by the matrix L
-std::vector<unsigned char> matrixMultiply(std::vector<unsigned char>& vec, const std::vector<std::vector<int>> L);
+std::vector<unsigned char> matrixMultiply(std::vector<unsigned char>& vec, const std::array<std::array<int, 4>, 4>& L);
 // function that fills the vector <vec> with zeros to the end up to size <len>
 void fillZeros(std::vector<unsigned char>& vec, const size_t& len);
 
