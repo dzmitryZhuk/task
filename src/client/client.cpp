@@ -12,10 +12,10 @@ int main(int argc, char* argv[])
     if(argc < 2 || argc > 3)
     {
         std::cout << " 2 arguments required: file path and command" << std::endl;
-        std::cout << " write argument --help for more information" << std::endl;
+        std::cout << " write argument -h or --help for more information" << std::endl;
         return 0;
     }
-    if(std::string(argv[1]) == std::string("-help"))
+    if(std::string(argv[1]) == std::string("-h") || std::string(argv[1]) == std::string("--help"))
     {
         std::cout << " run with 2 arguments: [file path], [command];" << std::endl;
         std::cout << "   commands:" << std::endl;
