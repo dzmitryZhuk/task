@@ -3,6 +3,7 @@
 
 #include <string>
 #include <exception>
+#include <filesystem>
 
 #define DEBUG
 
@@ -14,7 +15,11 @@ enum class Command{
     Count       = 0x0002,
 };
 
-int config_get_port(const std::string& config_path);
-std::string config_get_host(const std::string& config_path);
+struct Config{
+    int port = 8095;    // default port
+    std::string host = "localhost"; // default host
+};
+
+Config readConfig(std::filesystem::path path);
 
 #endif

@@ -55,28 +55,14 @@ int main(int argc, char* argv[])
     }
     
     // sending
-    std::string host = "localhost";
-    auto port = 8095;   // default port
-    auto config_name = "config.txt";
-    try{
-        port = config_get_port(config_name);
-        host = config_get_host(config_name);
-    }
-    catch (const std::exception& e) {
-        std::cerr << " failed reading config file. used default settings" << std::endl;
-        std::cerr << e.what() << std::endl;
-    }
-    catch(const char* message){
-        std::cerr << message << std::endl;
-        std::cerr << " used default settings" << std::endl;
-    }
+    auto cfg = readConfig("config.txt");
     try{
         boost::asio::io_context ioContext;
         boost::asio::ip::tcp::socket socket(ioContext);
 
         // connecting to server
         boost::asio::ip::tcp::resolver resolver(ioContext);
-        boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, std::to_string(port));
+        boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(cfg.host, std::to_string(cfg.port));
         boost::asio::connect(socket, endpoints);
 #ifdef DEBUG
     std::cout << " connected to server" << std::endl;

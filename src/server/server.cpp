@@ -91,24 +91,11 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
 
 int main(int argc, char* argv[])
 {
-    auto port = 8095;   // default port
-    auto config_name = "config.txt";
-    try{
-        port = config_get_port(config_name);
-    }
-    catch (const std::exception& e) {
-        std::cerr << " failed reading config file. used default settings" << std::endl;
-        std::cerr << e.what() << std::endl;
-    }
-    catch(const char* message){
-        std::cerr << message << std::endl;
-        std::cerr << " used default settings" << std::endl;
-    }
+    auto cfg = readConfig("config.txt");
 
-    //
     try {
         boost::asio::io_context ioContext;
-        boost::asio::ip::tcp::acceptor acceptor(ioContext, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+        boost::asio::ip::tcp::acceptor acceptor(ioContext, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), cfg.port));
 #ifdef DEBUG
         std::cout << " start working" << std::endl;
 #endif

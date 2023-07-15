@@ -1,29 +1,20 @@
 #include <fstream>
+#include <iostream>
 
 #include "common.h"
 
-int config_get_port(const std::string& config_path){
-    int res = 0;
-    std::ifstream config(config_path);
-    if(config.is_open()){
-        std::string host;
-        config >> host;
-        config >> res;
+Config readConfig(std::filesystem::path path)
+{
+    Config config;
+    std::ifstream configFile(path);
+    if(configFile.is_open())
+    {
+        configFile >> config.host;
+        configFile >> config.port;
     }
-    else{
-        throw " failed opening config file";
+    else
+    {
+        std::cerr << " failed opening config file" << std::endl;
     }
-    return res;
-}
-
-std::string config_get_host(const std::string& config_path){
-    std::string res;
-    std::ifstream config(config_path);
-    if(config.is_open()){
-        config >> res;
-    }
-    else{
-        throw " failed opening config file";
-    }
-    return res;
+    return config;
 }
