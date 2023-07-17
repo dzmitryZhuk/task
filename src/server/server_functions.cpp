@@ -1,6 +1,7 @@
 #include <sstream>
 #include <thread>
 #include <future>
+#include <numeric>
 
 #include "server_functions.h"
 
@@ -46,12 +47,12 @@ std::array Sbox = {
 
 std::vector<unsigned char> countHash(const std::string& _text){
     std::vector<unsigned char> res;
-    if(text.empty())
+    if(_text.empty())
         return res;
     auto text = _text;
     auto lcm = std::lcm(Sbox.size(),L.size());
     // нужно дополнить исходную строку нулями. кол-во нулей = остаток от деления на НОК ? НОК - остаток от деления на НОК : 0
-    fillZeros(text, text.size() % lcm : lcm - text.size() % lcm : 0);
+    fillZeros(text, text.size() % lcm ? lcm - text.size() % lcm : 0);
     // first 4 bytes
     auto _hash4 = [&res, &text]() {
         // separete on fragments 4 bytes
@@ -63,7 +64,6 @@ std::vector<unsigned char> countHash(const std::string& _text){
             std::vector<unsigned char> vec(fragment.begin(), fragment.end());
             fragments.push_back(vec);
         }
-        fillZeros(fragments[fragments.size()-1], 4);
 
         for(auto& i : fragments)
             i = matrixMultiply(i, L);
@@ -95,7 +95,6 @@ std::vector<unsigned char> countHash(const std::string& _text){
             }
             fragments.push_back(vec);
         }
-        fillZeros(fragments[fragments.size()-1], 7);
 
         // xor all fragments
         seven = fragments[0];

@@ -17,7 +17,7 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
 #ifdef DEBUG
     static int client_count = 0;
     client_count++;
-    log(std::to_string(" client connection №") + std::to_string(client_count));
+    log(std::string(" client connection №") + std::to_string(client_count));
 #endif
     try {
         // reading client data
@@ -72,7 +72,7 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         response += '\n';
         // sending response
 #ifdef DEBUG
-        log(std::to_string(" sending response to client №") + std::to_string(client_count));
+        log(std::string(" sending response to client №") + std::to_string(client_count));
         if(command == Command::Count)
             std::cout << response;
         else

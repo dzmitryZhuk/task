@@ -68,11 +68,11 @@ int main(int argc, char* argv[])
 
         // command sending
         boost::asio::write(socket, boost::asio::buffer(&command, sizeof(decltype(command))));
-        log(std::to_string(" command <") + std::to_string(static_cast<int>(command)) + std::to_string("> sent"));
+        log(std::string(" command <") + std::to_string(static_cast<int>(command)) + std::string("> sent"));
         // file size sending
         auto size = getFileSize(path);
         boost::asio::write(socket, boost::asio::buffer(&size, sizeof(decltype(size))));
-        log(std::to_string(" size <") + std::to_string(size) + std::to_string("> sent"));
+        log(std::string(" size <") + std::to_string(size) + std::string("> sent"));
         // message sending
         boost::asio::write(socket, boost::asio::buffer(text));
         log(" data sent");
