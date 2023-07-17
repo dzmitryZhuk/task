@@ -44,13 +44,14 @@ std::array Sbox = {
         0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
     };
 
-std::vector<unsigned char> countHash(const std::string& text){
+std::vector<unsigned char> countHash(const std::string& _text){
     std::vector<unsigned char> res;
-    if(text.empty()) {
-        fillZeros(res,11);
+    if(text.empty())
         return res;
-    }
-
+    auto text = _text;
+    auto lcm = std::lcm(Sbox.size(),L.size());
+    // нужно дополнить исходную строку нулями. кол-во нулей = остаток от деления на НОК ? НОК - остаток от деления на НОК : 0
+    fillZeros(text, text.size() % lcm : lcm - text.size() % lcm : 0);
     // first 4 bytes
     auto _hash4 = [&res, &text]() {
         // separete on fragments 4 bytes
@@ -135,7 +136,7 @@ std::vector<unsigned char> matrixMultiply(std::vector<unsigned char>& vec, const
     return res;
 };
 
-void fillZeros(std::vector<unsigned char>& vec, const size_t& len)
+void fillZeros(std::string& vec, const size_t& len)
 {
     while(vec.size() < len)
         vec.push_back(0);

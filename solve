@@ -7,7 +7,7 @@
 
 параметры командной строки клиента client <path> <command>, где
     path - путь к файлу с текстом
-    command - работа с текстом (-hash - хэширование, -count - подсчет количества слов)
+    command - работа с текстом (--hash - хэширование, --count - подсчет количества слов)
 примеры:
-    client /home/file_with_text.txt -count (будет вычеслено количество слов текста файла file_with_text.txt)
-    client /home/work/plan.txt -hash (будет вычеслен хэш текста файла plan.txt)
+    client /home/file_with_text.txt --count (будет вычеслено количество слов текста файла file_with_text.txt)
+    client /home/work/plan.txt --hash (будет вычеслен хэш текста файла plan.txt)

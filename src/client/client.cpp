@@ -19,8 +19,8 @@ int main(int argc, char* argv[])
     {
         std::cout << " run with 2 arguments: [file path], [command];" << std::endl;
         std::cout << "   commands:" << std::endl;
-        std::cout << "     -hash - get hash of file text" << std::endl;
-        std::cout << "     -count - count words of file text" << std::endl;
+        std::cout << "     --hash - get hash of file text" << std::endl;
+        std::cout << "     --count - count words of file text" << std::endl;
         std::cout << " Example <client /home/file_with_text.txt -count>" << std::endl;
         return 0;
     }
@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
     std::string com = argv[2];
     Command command = Command::No_command;
 
-    if(com == "-hash"){
+    if(com == "--hash"){
         command = Command::Hash;        
-    } else if(com == "-count"){
+    } else if(com == "--count"){
         command = Command::Count;
     }
     else{
@@ -64,33 +64,23 @@ int main(int argc, char* argv[])
         boost::asio::ip::tcp::resolver resolver(ioContext);
         boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(cfg.host, std::to_string(cfg.port));
         boost::asio::connect(socket, endpoints);
-#ifdef DEBUG
-    std::cout << " connected to server" << std::endl;
-#endif
+        log(" connected to server");
 
         // command sending
         boost::asio::write(socket, boost::asio::buffer(&command, sizeof(decltype(command))));
-#ifdef DEBUG
-    std::cout << " command <" << static_cast<int>(command) << "> sent" << std::endl;
-#endif
+        log(std::to_string(" command <") + std::to_string(static_cast<int>(command)) + std::to_string("> sent"));
         // file size sending
         auto size = getFileSize(path);
         boost::asio::write(socket, boost::asio::buffer(&size, sizeof(decltype(size))));
-#ifdef DEBUG
-    std::cout << " size <" << size << "> sent" << std::endl;
-#endif
+        log(std::to_string(" size <") + std::to_string(size) + std::to_string("> sent"));
         // message sending
         boost::asio::write(socket, boost::asio::buffer(text));
-#ifdef DEBUG
-    std::cout << " data sent" << std::endl;
-#endif
+        log(" data sent");
 
         // getting response
         boost::asio::streambuf buffer;
         boost::asio::read_until(socket, buffer, '\n');
-#ifdef DEBUG
-    std::cout << " response received" << std::endl;
-#endif
+        log(" response received");
         std::istream input(&buffer);
         std::string response;
         std::getline(input, response);

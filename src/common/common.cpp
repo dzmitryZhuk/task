@@ -18,3 +18,10 @@ Config readConfig(std::filesystem::path path)
     }
     return config;
 }
+
+void log(const std::string& message)
+{
+#ifdef DEBUG
+    std::cout << message << std::endl;
+#endif
+}
