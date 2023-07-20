@@ -81,7 +81,7 @@ std::vector<unsigned char> countHash(const std::string& _text){
         std::vector<std::vector<unsigned char>> fragments;
         // xor Sbox
         auto cur_Sbox = Sbox;
-        for(int i = 0; i < sizeof(cur_Sbox)/sizeof(int); ++i)
+        for(int i = 0; i < cur_Sbox.size(); ++i)
             cur_Sbox[i] ^= text[0];
 
         // replace all characters by Sbox
