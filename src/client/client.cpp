@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
             std::cout << response;
         else
             for(const auto& i : response)
-                std::cout << std::hex << static_cast<int>(i);
+                std::cout << std::hex << (static_cast<int>(i) & 0xff);
         std::cout << std::endl;
         
         socket.close();

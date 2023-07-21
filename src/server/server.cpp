@@ -77,7 +77,7 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
             std::cout << response;
         else
             for(const auto& i : response)
-                std::cout << std::hex << static_cast<int>(i);
+                std::cout << std::hex << (static_cast<int>(i) & 0xff);
         std::cout << std::endl;
 #endif
         boost::asio::write(socket, boost::asio::buffer(response));
