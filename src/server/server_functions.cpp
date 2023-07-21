@@ -45,8 +45,8 @@ std::array Sbox = {
         0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
     };
 
-std::vector<unsigned char> countHash(const std::string& _text){
-    std::vector<unsigned char> res;
+std::vector<uint8_t> countHash(const std::string& _text){
+    std::vector<uint8_t> res;
     if(_text.empty())
         return res;
     auto text = _text;
@@ -56,12 +56,12 @@ std::vector<unsigned char> countHash(const std::string& _text){
     // first 4 bytes
     auto _hash4 = [&res, &text]() {
         // separete on fragments 4 bytes
-        std::vector<unsigned char> four;
-        std::vector<std::vector<unsigned char>> fragments;
+        std::vector<uint8_t> four;
+        std::vector<std::vector<uint8_t>> fragments;
         std::string fragment;
         for (size_t i = 0; i < text.size(); i += 4) {
             fragment = text.substr(i, 4);
-            std::vector<unsigned char> vec(fragment.begin(), fragment.end());
+            std::vector<uint8_t> vec(fragment.begin(), fragment.end());
             fragments.push_back(vec);
         }
 
@@ -77,8 +77,8 @@ std::vector<unsigned char> countHash(const std::string& _text){
     
     auto _hash7 = [&res, &text]() {
         // second 7 bytes
-        std::vector<unsigned char> seven;
-        std::vector<std::vector<unsigned char>> fragments;
+        std::vector<uint8_t> seven;
+        std::vector<std::vector<uint8_t>> fragments;
         // xor Sbox
         auto cur_Sbox = Sbox;
         for(int i = 0; i < cur_Sbox.size(); ++i)
@@ -87,7 +87,7 @@ std::vector<unsigned char> countHash(const std::string& _text){
         // replace all characters by Sbox
         fragments.clear();
         for (size_t i = 0; i < text.size(); i += 7) {
-            std::vector<unsigned char> vec;
+            std::vector<uint8_t> vec;
             for(int j = 0; j < 7; j++){
                 if(i + j >= text.size())
                     break;
@@ -112,20 +112,20 @@ std::vector<unsigned char> countHash(const std::string& _text){
     return res;
 }
 
-std::vector<unsigned char> xorVectors(const std::vector<unsigned char>& v1, const std::vector<unsigned char>& v2)
+std::vector<uint8_t> xorVectors(const std::vector<uint8_t>& v1, const std::vector<uint8_t>& v2)
 {
     if(v1.size() != v2.size()) return v1;
-    std::vector<unsigned char> res;
+    std::vector<uint8_t> res;
     res.reserve(v1.size());
     for(int i = 0; i < v1.size(); ++i)
         res.push_back(v1[i] ^ v2[i]);
     return res;
 };
 
-std::vector<unsigned char> matrixMultiply(std::vector<unsigned char>& vec, const std::array<std::array<int, 4>, 4>& L)
+std::vector<uint8_t> matrixMultiply(std::vector<uint8_t>& vec, const std::array<std::array<int, 4>, 4>& L)
 {
     if(!L.size() || vec.size() != L[0].size()) return vec;
-    std::vector<unsigned char> res;
+    std::vector<uint8_t> res;
     for(int i = 0; i < vec.size(); ++i)
     {
         res.push_back(0);
