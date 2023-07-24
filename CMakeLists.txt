@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_BINARY_DIR ${PROJECT_SOURCE_DIR}/bin)
 
-set(BOOST_ROOT /usr/include)
+find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 set(DIR_SOURCES_COMMON "${PROJECT_SOURCE_DIR}/src/common")
