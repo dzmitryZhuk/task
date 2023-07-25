@@ -5,6 +5,7 @@
 
 
 ## build:
+linux:
   1. clone git
   2. cd build
   3. cmake ..
