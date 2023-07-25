@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
         return 0;
     }
     
-    std::string path = argv[1];
+    std::filesystem::path path = argv[1];
     std::string com = argv[2];
     Command command = Command::No_command;
 

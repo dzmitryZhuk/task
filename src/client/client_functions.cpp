@@ -3,7 +3,7 @@
 
 #include "client_functions.h"
 
-std::string readText(const std::string& path)
+std::string readText(const std::filesystem::path& path)
 {
     std::ifstream file(path);
     std::string text;
@@ -22,7 +22,7 @@ std::string readText(const std::string& path)
     return text;    
 }
 
-filesize_t getFileSize(const std::string& path)
+filesize_t getFileSize(const std::filesystem::path& path)
 {
     // c++17 required
     return std::filesystem::file_size(path);

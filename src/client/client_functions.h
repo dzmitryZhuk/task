@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-filesize_t getFileSize(const std::string& path); 
-std::string readText(const std::string& path);  // reads text from file
+filesize_t getFileSize(const std::filesystem::path& path); 
+std::string readText(const std::filesystem::path& path);
 
 #endif
