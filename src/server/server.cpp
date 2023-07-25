@@ -7,17 +7,11 @@
 #include "server_functions.h"
 #include "common.h"
 
-std::string make_string(const boost::asio::streambuf& streambuf)
-{
-  return {boost::asio::buffers_begin(streambuf.data()), 
-          boost::asio::buffers_end(streambuf.data())};
-}
-
 void clientHandler(boost::asio::ip::tcp::socket socket) {
 #ifdef DEBUG
     static int client_count = 0;
     client_count++;
-    log(std::string(" client connection №") + std::to_string(client_count));
+    log(std::string(" client connection number ") + std::to_string(client_count));
 #endif
     try {
         // reading client data
@@ -26,21 +20,21 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         // reading command
         auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)));
         if(bytes_received != sizeof(Command))
-            throw 1;
-
-        const Command* command_ptr = boost::asio::buffer_cast<const Command*>(buffer.data());
-        auto command = *command_ptr;
-        //command = stringToCommand(make_string(buffer));
+        {
+            log(std::string(" failed receive command from client number ") + std::to_string(client_count));
+            return;
+        }
+        auto command = *boost::asio::buffer_cast<const Command*>(buffer.data());
         buffer.consume(bytes_received);
 
         // reading file size
-        filesize_t file_size;
         bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)));
         if(bytes_received != sizeof(filesize_t))
-            throw 1;
-
-        const filesize_t* size_ptr = boost::asio::buffer_cast<const filesize_t*>(buffer.data());
-        auto size = *size_ptr;
+        {
+            log(std::string(" failed receive file size from client number ") + std::to_string(client_count));
+            return;
+        }
+        auto size = *boost::asio::buffer_cast<const filesize_t*>(buffer.data());
         buffer.consume(bytes_received);
 
         // read text
@@ -48,10 +42,14 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         message.reserve(size);
         bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size));
         if(bytes_received != size) 
-            throw 1;
+        {
+            log(std::string(" failed receive file content from client number ") + std::to_string(client_count));
+            return;
+        }
         const char* data = boost::asio::buffer_cast<const char*>(buffer.data());
         message.append(data, size);
 
+        // make response
         std::string response;
         switch (command)
         {
@@ -72,7 +70,7 @@ void clientHandler(boost::asio::ip::tcp::socket socket) {
         response += '\n';
         // sending response
 #ifdef DEBUG
-        log(std::string(" sending response to client №") + std::to_string(client_count));
+        log(std::string(" sending response to client number ") + std::to_string(client_count));
         if(command == Command::Count)
             std::cout << response;
         else
