@@ -85,7 +85,6 @@ std::vector<uint8_t> countHash(const std::string& _text){
             cur_Sbox[i] ^= text[0];
 
         // replace all characters by Sbox
-        fragments.clear();
         for (size_t i = 0; i < text.size(); i += 7) {
             std::vector<uint8_t> vec;
             for(int j = 0; j < 7; j++){
