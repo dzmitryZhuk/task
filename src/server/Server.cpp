@@ -1,9 +1,10 @@
+#include <iostream>
 #include <sstream>
 #include <thread>
 #include <future>
 #include <numeric>
 
-#include "server_functions.h"
+#include "Server.h"
 
 size_t countWords(const std::string& text)
 {
@@ -45,7 +46,7 @@ std::array Sbox = {
         0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
     };
 
-std::vector<uint8_t> countHash(const std::string& _text){
+std::vector<uint8_t> Server::countHash(const std::string& _text){
     std::vector<uint8_t> res;
     if(_text.empty())
         return res;
@@ -54,7 +55,7 @@ std::vector<uint8_t> countHash(const std::string& _text){
     // нужно дополнить исходную строку нулями. кол-во нулей = остаток от деления на НОК ? НОК - остаток от деления на НОК : 0
     fillZeros(text, text.size() % lcm ? lcm - text.size() % lcm : 0);
     // first 4 bytes
-    auto _hash4 = [&res, &text]() {
+    auto _hash4 = [this, &res, &text]() {
         // separete on fragments 4 bytes
         std::vector<uint8_t> four;
         std::vector<std::vector<uint8_t>> fragments;
@@ -75,7 +76,7 @@ std::vector<uint8_t> countHash(const std::string& _text){
         res.insert(res.end(), four.begin(), four.end());
     };
     
-    auto _hash7 = [&res, &text]() {
+    auto _hash7 = [this, &res, &text]() {
         // second 7 bytes
         std::vector<uint8_t> seven;
         std::vector<std::vector<uint8_t>> fragments;
@@ -111,7 +112,7 @@ std::vector<uint8_t> countHash(const std::string& _text){
     return res;
 }
 
-std::vector<uint8_t> xorVectors(const std::vector<uint8_t>& v1, const std::vector<uint8_t>& v2)
+std::vector<uint8_t> Server::xorVectors(const std::vector<uint8_t>& v1, const std::vector<uint8_t>& v2)
 {
     if(v1.size() != v2.size()) return v1;
     std::vector<uint8_t> res;
@@ -121,7 +122,7 @@ std::vector<uint8_t> xorVectors(const std::vector<uint8_t>& v1, const std::vecto
     return res;
 };
 
-std::vector<uint8_t> matrixMultiply(std::vector<uint8_t>& vec, const std::array<std::array<int, 4>, 4>& L)
+std::vector<uint8_t> Server::matrixMultiply(std::vector<uint8_t>& vec, const std::array<std::array<int, 4>, 4>& L)
 {
     if(!L.size() || vec.size() != L[0].size()) return vec;
     std::vector<uint8_t> res;
@@ -134,9 +135,110 @@ std::vector<uint8_t> matrixMultiply(std::vector<uint8_t>& vec, const std::array<
     return res;
 };
 
-void fillZeros(std::string& vec, const size_t& len)
+void Server::fillZeros(std::string& vec, const size_t& len)
 {
     while(vec.size() < len)
         vec.push_back(0);
 };
 
+void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
+#ifdef DEBUG
+    static int client_count = 0;
+    client_count++;
+    log(std::string(" client connection number ") + std::to_string(client_count));
+#endif
+    try {
+        // reading client data
+        boost::asio::streambuf buffer;
+
+        // reading command
+        auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)));
+        if(bytes_received != sizeof(Command))
+        {
+            log(std::string(" failed receive command from client number ") + std::to_string(client_count));
+            return;
+        }
+        auto command = *boost::asio::buffer_cast<const Command*>(buffer.data());
+        buffer.consume(bytes_received);
+
+        // reading file size
+        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)));
+        if(bytes_received != sizeof(filesize_t))
+        {
+            log(std::string(" failed receive file size from client number ") + std::to_string(client_count));
+            return;
+        }
+        auto size = *boost::asio::buffer_cast<const filesize_t*>(buffer.data());
+        buffer.consume(bytes_received);
+
+        // read text
+        std::string message;
+        message.reserve(size);
+        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size));
+        if(bytes_received != size) 
+        {
+            log(std::string(" failed receive file content from client number ") + std::to_string(client_count));
+            return;
+        }
+        const char* data = boost::asio::buffer_cast<const char*>(buffer.data());
+        message.append(data, size);
+
+        // make response
+        std::string response;
+        switch (command)
+        {
+        case Command::Count:{
+            response = std::to_string(countWords(message));
+            break;
+        }
+        case Command::Hash:{
+            auto temp = countHash(message);
+            response = std::string(temp.begin(), temp.end());
+            break;
+        }
+        case Command::No_command:
+        default:
+            std::cerr << " error command" << std::endl;
+            break;
+        }
+        response += '\n';
+        // sending response
+#ifdef DEBUG
+        log(std::string(" sending response to client number ") + std::to_string(client_count));
+        if(command == Command::Count)
+            std::cout << response;
+        else
+            for(const auto& i : response)
+                std::cout << std::hex << (static_cast<int>(i) & 0xff);
+        std::cout << std::endl;
+#endif
+        boost::asio::write(socket, boost::asio::buffer(response));
+    } catch (const std::exception& e) {
+        std::cerr << " error: " << e.what() << std::endl;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
+    }
+}
+
+void Server::run()
+{
+    try {
+        boost::asio::io_context ioContext;
+        boost::asio::ip::tcp::acceptor acceptor(ioContext, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), m_port));
+        log(" start working");
+        while (true) {
+            boost::asio::ip::tcp::socket socket(ioContext);
+            acceptor.accept(socket);
+            
+            // start client handler in new thread
+            std::thread thread(&Server::clientHandler, this, std::move(socket));
+            thread.detach();
+        }
+    } catch (const std::exception& e) {
+        std::cerr << " error: " << e.what() << std::endl;
+    }
+    catch(const char* message){
+        std::cerr << message << std::endl;
+    }
+}
