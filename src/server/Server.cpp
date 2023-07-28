@@ -4,6 +4,8 @@
 #include <future>
 #include <numeric>
 
+#include <boost/system/error_code.hpp>
+
 #include "Server.h"
 
 size_t Server::countWords(const std::string& text)
@@ -17,8 +19,6 @@ size_t Server::countWords(const std::string& text)
 
     return count;
 }
-
-//-------------------------------------------------
 
 std::array<std::array<int, 4>, 4> L = {{
     {{0x2, 0x3, 0x1, 0x1}},
@@ -127,13 +127,10 @@ std::vector<uint8_t> Server::xorVectors(const std::vector<uint8_t>& v1, const st
 std::vector<uint8_t> Server::matrixMultiply(std::vector<uint8_t>& vec, const std::array<std::array<int, 4>, 4>& L)
 {
     if(!L.size() || vec.size() != L[0].size()) return vec;
-    std::vector<uint8_t> res;
+    std::vector<uint8_t> res(vec.size(), 0);
     for(int i = 0; i < vec.size(); ++i)
-    {
-        res.push_back(0);
         for(int j = 0; j < vec.size(); ++j)
             res[i] += vec[j] * L[j][i];
-    }
     return res;
 };
 
@@ -152,10 +149,11 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
     try {
         // reading client data
         boost::asio::streambuf buffer;
+        boost::system::error_code ec;
 
         // reading command
-        auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)));
-        if(bytes_received != sizeof(Command))
+        auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)), ec);
+        if(ec)
         {
             log(std::string(" failed receive command from client number ") + std::to_string(client_count));
             return;
@@ -164,8 +162,8 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
         buffer.consume(bytes_received);
 
         // reading file size
-        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)));
-        if(bytes_received != sizeof(filesize_t))
+        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)), ec);
+        if(ec)
         {
             log(std::string(" failed receive file size from client number ") + std::to_string(client_count));
             return;
@@ -176,8 +174,8 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
         // read text
         std::string message;
         message.reserve(size);
-        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size));
-        if(bytes_received != size) 
+        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size), ec);
+        if(ec)
         {
             log(std::string(" failed receive file content from client number ") + std::to_string(client_count));
             return;
