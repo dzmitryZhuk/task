@@ -3,12 +3,6 @@
 
 #include "Client.h"
 
-filesize_t Client::getFileSize(const std::filesystem::path& path)
-{
-    // c++17 required
-    return std::filesystem::file_size(path);
-}
-
 bool Client::connectToServer()
 {
     boost::asio::io_context ioContext;
@@ -24,14 +18,12 @@ bool Client::connectToServer()
 
 bool Client::readTextFromFile(const std::filesystem::path& path)
 {
-    m_path = path;
-
     std::ifstream file(path);
     if (file.is_open()) {
         std::string line;
         while (std::getline(file, line)){
             line.push_back('\n');
-            m_fileText += line;
+            m_text += line;
         }
         file.close();
     } else
@@ -46,11 +38,11 @@ bool Client::sendText(const Command& command)
     boost::asio::write(*m_socket, boost::asio::buffer(&command, sizeof(decltype(command))));
     log(std::string(" command <") + std::to_string(static_cast<int>(command)) + std::string("> sent"));
     // file size sending
-    auto size = getFileSize(m_path);
+    filesize_t size = m_text.size();
     boost::asio::write(*m_socket, boost::asio::buffer(&size, sizeof(decltype(size))));
     log(std::string(" size <") + std::to_string(size) + std::string("> sent"));
     // message sending
-    boost::asio::write(*m_socket, boost::asio::buffer(m_fileText));
+    boost::asio::write(*m_socket, boost::asio::buffer(m_text));
     log(" data sent");
 
     return true;

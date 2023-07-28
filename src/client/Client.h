@@ -10,8 +10,7 @@
 class Client{
     int m_port;
     std::string m_host;
-    std::string m_fileText;
-    std::filesystem::path m_path;
+    std::string m_text;
     boost::asio::ip::tcp::socket *m_socket;
     Command m_command;
 public:
@@ -24,8 +23,6 @@ public:
     bool sendText(const Command& command);
     std::string getResponse();
     void disconnectFromServer();
-protected:
-    filesize_t getFileSize(const std::filesystem::path& path);
 };
 
 #endif
