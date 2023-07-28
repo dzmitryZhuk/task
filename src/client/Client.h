@@ -8,21 +8,22 @@
 #include "common.h"
 
 class Client{
-    int m_port;
-    std::string m_host;
     std::string m_text;
     boost::asio::ip::tcp::socket *m_socket;
     Command m_command;
 public:
-    Client(const std::string& host, const int& port) : m_port(port), m_host(host) {}
     ~Client() {
         delete m_socket;
     }
-    bool connectToServer();
+    bool connect(const std::string& host, const int& port);
+    std::string getResponse();
+    void disconnect();
+    // read text from file first, then send it with command
+    bool sendText(const std::filesystem::path& file, const Command& command);
+
+protected:
     bool readTextFromFile(const std::filesystem::path& file);
     bool sendText(const Command& command);
-    std::string getResponse();
-    void disconnectFromServer();
 };
 
 #endif

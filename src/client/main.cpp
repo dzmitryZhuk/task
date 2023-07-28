@@ -27,11 +27,10 @@ int main(int argc, char* argv[])
     std::string com = argv[2];
     Command command = Command::No_command;
 
-    if(com == "--hash"){
+    if(com == "--hash")
         command = Command::Hash;        
-    } else if(com == "--count"){
+    else if(com == "--count")
         command = Command::Count;
-    }
     else{
         std::cout << " undefined command" << std::endl;
         return 0;
@@ -39,25 +38,14 @@ int main(int argc, char* argv[])
 
     auto cfg = readConfig("config.txt");
     
-    Client client(cfg.host, cfg.port);
-    if(!client.readTextFromFile(path))
-    {
-        std::cerr << " failed reading text from file" << std::endl;
+    Client client;
+    if(!client.connect(cfg.host, cfg.port))
         return 0;
-    }
-    if(!client.connectToServer())
-    {
-        std::cerr << " failed connecting to host " << cfg.host << " via port " << cfg.port << std::endl;
+    if(!client.sendText(path, command))
         return 0;
-    }
-    if(!client.sendText(command))
-    {
-        std::cerr << " failed sending text" << std::endl;
-        return 0;
-    }
 
     auto response = client.getResponse();
-    client.disconnectFromServer();
+    client.disconnect();
     std::cout << " server response: ";
     if(command == Command::Count)
         std::cout << response;
