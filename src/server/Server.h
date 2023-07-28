@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <array>
-#include <thread>
 
 #include <boost/asio.hpp>
 
@@ -16,10 +15,9 @@ class Server{
 public: 
     Server(const int& port) : m_port(port) {}
     void run();
+protected:
     size_t countWords(const std::string& text);
     std::vector<uint8_t> countHash(const std::string& text);
-
-protected:
 // -------------- functions for hash processing
     // function that xor two vectors and return result
     std::vector<uint8_t> xorVectors(const std::vector<uint8_t>& v1, const std::vector<uint8_t>& v2);

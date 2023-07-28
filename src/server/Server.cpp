@@ -6,7 +6,7 @@
 
 #include "Server.h"
 
-size_t countWords(const std::string& text)
+size_t Server::countWords(const std::string& text)
 {
     std::stringstream temp(text);
     std::string word;
