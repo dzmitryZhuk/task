@@ -55,7 +55,7 @@ std::vector<uint8_t> Server::countHash(const std::string& _text){
     // нужно дополнить исходную строку нулями. кол-во нулей = остаток от деления на НОК ? НОК - остаток от деления на НОК : 0
     fillZeros(text, text.size() % lcm ? lcm - text.size() % lcm : 0);
     // first 4 bytes
-    auto _hash4 = [this, &res, &text]() {
+    auto _hash4 = [this, &res, &text]() -> std::vector<uint8_t> {
         // separete on fragments 4 bytes
         std::vector<uint8_t> four;
         std::vector<std::vector<uint8_t>> fragments;
@@ -73,10 +73,10 @@ std::vector<uint8_t> Server::countHash(const std::string& _text){
         for(int i = 1; i < fragments.size(); i++)
             four = xorVectors(four, fragments[i]);
 
-        res.insert(res.end(), four.begin(), four.end());
+        return four;
     };
     
-    auto _hash7 = [this, &res, &text]() {
+    auto _hash7 = [this, &res, &text]() -> std::vector<uint8_t> {
         // second 7 bytes
         std::vector<uint8_t> seven;
         std::vector<std::vector<uint8_t>> fragments;
@@ -101,13 +101,15 @@ std::vector<uint8_t> Server::countHash(const std::string& _text){
         for(int i = 1; i < fragments.size(); i++)
             seven = xorVectors(seven, fragments[i]);
         
-        res.insert(res.end(), seven.begin(), seven.end());
+        return seven;
     };
 
-    std::future<void> hash4 = std::async(std::launch::async, _hash4);
-    hash4.get();
-    std::future<void> hash7 = std::async(std::launch::async, _hash7);
-    hash7.get();
+    auto hash4 = std::async(std::launch::async, _hash4);
+    auto hash7 = std::async(std::launch::async, _hash7);
+    auto res4 = hash4.get();
+    auto res7 = hash7.get();
+    res.insert(res.end(), res4.begin(), res4.end());
+    res.insert(res.end(), res7.begin(), res7.end());
 
     return res;
 }
