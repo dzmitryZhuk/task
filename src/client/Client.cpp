@@ -14,7 +14,7 @@ bool Client::connect(const std::string& host, const int& port)
     boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, std::to_string(port));
     boost::asio::connect(*m_socket, endpoints, ec);
     if(ec){
-        std::cerr << " failed connecting to host " << host << " via port " << port << std::endl;
+        log_error(" failed connecting to host " + host + " via port " + std::to_string(port));
         return false;
     }
     log(" connected to server");
@@ -33,7 +33,7 @@ bool Client::readTextFromFile(const std::filesystem::path& path)
         }
         file.close();
     } else {
-        std::cerr << " failed read text from file " + path.string() << std::endl;
+        log_error(" failed read text from file " + path.string());
         return false;
     }
 
@@ -46,7 +46,7 @@ bool Client::sendText(const Command& command)
     // command sending
     boost::asio::write(*m_socket, boost::asio::buffer(&command, sizeof(decltype(command))), ec);
     if(ec){
-        std::cerr << " failed sending command" << std::endl;
+        log_error(" failed sending command");
         return false;
     }
     log(std::string(" command <") + std::to_string(static_cast<int>(command)) + std::string("> sent"));
@@ -54,14 +54,14 @@ bool Client::sendText(const Command& command)
     filesize_t size = m_text.size();
     boost::asio::write(*m_socket, boost::asio::buffer(&size, sizeof(decltype(size))), ec);
     if(ec){
-        std::cerr << " failed sending file size" << std::endl;
+        log_error(" failed sending file size");
         return false;
     }
     log(std::string(" size <") + std::to_string(size) + std::string("> sent"));
     // message sending
     boost::asio::write(*m_socket, boost::asio::buffer(m_text), ec);
     if(ec){
-        std::cerr << " failed sending text" << std::endl;
+        log_error(" failed sending text");
         return false;
     }
     log(" data sent");
@@ -76,7 +76,7 @@ std::string Client::getResponse()
     boost::system::error_code ec;
     boost::asio::read_until(*m_socket, buffer, '\n', ec);
     if(ec){
-        std::cerr << " failed receive response from server" << std::endl;
+        log_error(" failed receive response from server");
         return res;
     }
     log(" response received");

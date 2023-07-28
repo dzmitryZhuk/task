@@ -21,6 +21,7 @@ struct Config{
 };
 
 Config readConfig(std::filesystem::path path);
+void log_error(const std::string& message);
 void log(const std::string& message);
 
 #endif
