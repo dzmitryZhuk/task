@@ -140,12 +140,10 @@ void Server::fillZeros(std::string& vec, const size_t& len)
         vec.push_back(0);
 };
 
-void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
-#ifdef DEBUG
-    static int client_count = 0;
-    client_count++;
-    log(std::string(" client connection number ") + std::to_string(client_count));
-#endif
+void Server::clientHandler(boost::asio::ip::tcp::socket socket)
+{
+    auto client_ip = socket.remote_endpoint().address().to_string();
+    log(" connecting with client " + client_ip);
     try {
         // reading client data
         boost::asio::streambuf buffer;
@@ -155,7 +153,7 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
         auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)), ec);
         if(ec)
         {
-            log_error(std::string(" failed receive command from client number ") + std::to_string(client_count));
+            log_error(std::string(" failed receive command from client ") + client_ip);
             return;
         }
         auto command = *boost::asio::buffer_cast<const Command*>(buffer.data());
@@ -165,7 +163,7 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
         bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)), ec);
         if(ec)
         {
-            log_error(std::string(" failed receive file size from client number ") + std::to_string(client_count));
+            log_error(std::string(" failed receive file size from client number ") + client_ip);
             return;
         }
         auto size = *boost::asio::buffer_cast<const filesize_t*>(buffer.data());
@@ -177,7 +175,7 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
         bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size), ec);
         if(ec)
         {
-            log_error(std::string(" failed receive file content from client number ") + std::to_string(client_count));
+            log_error(std::string(" failed receive file content from client ") + client_ip);
             return;
         }
         const char* data = boost::asio::buffer_cast<const char*>(buffer.data());
@@ -204,7 +202,6 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket) {
         response += '\n';
         // sending response
 #ifdef DEBUG
-        log(std::string(" sending response to client number ") + std::to_string(client_count));
         if(command == Command::Count)
             std::cout << response;
         else
@@ -226,7 +223,7 @@ void Server::run()
     try {
         boost::asio::io_context ioContext;
         boost::asio::ip::tcp::acceptor acceptor(ioContext, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), m_port));
-        log(" start working");
+        log(" start working on port " + std::to_string(m_port));
         while (true) {
             boost::asio::ip::tcp::socket socket(ioContext);
             acceptor.accept(socket);

@@ -17,7 +17,7 @@ bool Client::connect(const std::string& host, const int& port)
         log_error(" failed connecting to host " + host + " via port " + std::to_string(port));
         return false;
     }
-    log(" connected to server");
+    log(" connected to server " + host + std::to_string(port));
 
     return m_socket->is_open();
 }
