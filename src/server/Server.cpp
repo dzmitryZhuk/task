@@ -128,78 +128,73 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket)
 {
     auto client_ip = socket.remote_endpoint().address().to_string();
     log(" connecting with client " + client_ip);
-    try {
-        // reading client data
-        boost::asio::streambuf buffer;
-        boost::system::error_code ec;
+    // reading client data
+    boost::asio::streambuf buffer;
+    boost::system::error_code ec;
 
-        // reading command
-        auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)), ec);
-        if(ec)
-        {
-            log_error(std::string(" failed receive command from client ") + client_ip);
-            return;
-        }
-        auto command = *boost::asio::buffer_cast<const Command*>(buffer.data());
-        buffer.consume(bytes_received);
+    // reading command
+    auto bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(Command)), ec);
+    if(ec)
+    {
+        log_error(std::string(" failed receive command from client ") + client_ip);
+        return;
+    }
+    auto command = *boost::asio::buffer_cast<const Command*>(buffer.data());
+    buffer.consume(bytes_received);
 
-        // reading file size
-        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)), ec);
-        if(ec)
-        {
-            log_error(std::string(" failed receive file size from client number ") + client_ip);
-            return;
-        }
-        auto size = *boost::asio::buffer_cast<const filesize_t*>(buffer.data());
-        buffer.consume(bytes_received);
+    // reading file size
+    bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(sizeof(filesize_t)), ec);
+    if(ec)
+    {
+        log_error(std::string(" failed receive file size from client number ") + client_ip);
+        return;
+    }
+    auto size = *boost::asio::buffer_cast<const filesize_t*>(buffer.data());
+    buffer.consume(bytes_received);
 
-        // read text
-        std::string message;
-        message.reserve(size);
-        bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size), ec);
-        if(ec)
-        {
-            log_error(std::string(" failed receive file content from client ") + client_ip);
-            return;
-        }
-        const char* data = boost::asio::buffer_cast<const char*>(buffer.data());
-        message.append(data, size);
+    // read text
+    std::string message;
+    message.reserve(size);
+    bytes_received = boost::asio::read(socket, buffer, boost::asio::transfer_exactly(size), ec);
+    if(ec)
+    {
+        log_error(std::string(" failed receive file content from client ") + client_ip);
+        return;
+    }
+    const char* data = boost::asio::buffer_cast<const char*>(buffer.data());
+    message.append(data, size);
 
-        // make response
-        std::string response;
-        switch (command)
-        {
-        case Command::Count:{
-            response = std::to_string(countWords(message));
-            break;
-        }
-        case Command::Hash:{
-            auto temp = countHash(message);
-            response = std::string(temp.begin(), temp.end());
-            break;
-        }
-        case Command::No_command:
-        default:
-            std::cerr << " error command" << std::endl;
-            break;
-        }
-        response += '\n';
-        // sending response
+    // make response
+    std::string response;
+    switch (command)
+    {
+    case Command::Count:{
+        response = std::to_string(countWords(message));
+        break;
+    }
+    case Command::Hash:{
+        auto temp = countHash(message);
+        response = std::string(temp.begin(), temp.end());
+        break;
+    }
+    case Command::No_command:
+    default:
+        std::cerr << " error command" << std::endl;
+        break;
+    }
+    response += '\n';
+    log(" response:");
+    // sending response
 #ifdef DEBUG
-        if(command == Command::Count)
-            std::cout << response;
-        else
-            for(const auto& i : response)
-                std::cout << std::hex << (static_cast<int>(i) & 0xff);
-        std::cout << std::endl;
+    if(command == Command::Count)
+        std::cout << response;
+    else
+        for(const auto& i : response)
+            std::cout << std::hex << (static_cast<int>(i) & 0xff);
+    std::cout << std::endl;
 #endif
-        boost::asio::write(socket, boost::asio::buffer(response));
-    } catch (const std::exception& e) {
-        std::cerr << " error: " << e.what() << std::endl;
-    }
-    catch(const char* message){
-        std::cerr << message << std::endl;
-    }
+    boost::asio::write(socket, boost::asio::buffer(response));
+    log(" response to client " + client_ip + " sent");
 }
 
 void Server::run()
