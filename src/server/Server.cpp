@@ -46,62 +46,46 @@ std::array Sbox = {
         0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
     };
 
-std::vector<uint8_t> Server::countHash(const std::string& _text){
+std::vector<uint8_t> Server::countHash(const std::string& text){
     std::vector<uint8_t> res;
-    if(_text.empty())
+    if(text.empty())
         return res;
-    auto text = _text;
-    auto lcm = std::lcm(Sbox.size(),L.size());
-    // нужно дополнить исходную строку нулями. кол-во нулей = остаток от деления на НОК ? НОК - остаток от деления на НОК : 0
-    fillZeros(text, text.size() % lcm ? lcm - text.size() % lcm : 0);
-    // first 4 bytes
-    auto _hash4 = [this, &res, &text]() -> std::vector<uint8_t> {
-        // separete on fragments 4 bytes
-        std::vector<uint8_t> four;
-        std::vector<std::vector<uint8_t>> fragments;
-        std::string fragment;
-        for (size_t i = 0; i < text.size(); i += 4) {
-            fragment = text.substr(i, 4);
-            std::vector<uint8_t> vec(fragment.begin(), fragment.end());
-            fragments.push_back(vec);
+
+    auto _hash4 = [this, &text]() -> std::vector<uint8_t> {
+        const auto FOUR = 4;
+        std::vector<uint8_t> res(FOUR,0);
+
+        for (auto i = 0; i < text.size(); i += FOUR)
+        {
+            auto fragment_s = text.substr(i, FOUR);
+            std::vector<uint8_t> fragment(fragment_s.begin(), fragment_s.end());
+            fillZeros(fragment, FOUR);
+            fragment = matrixMultiply(fragment, L);
+            res = xorVectors(res, fragment);
         }
 
-        for(auto& i : fragments)
-            i = matrixMultiply(i, L);
-        // xor all fragments
-        four = fragments[0];
-        for(int i = 1; i < fragments.size(); i++)
-            four = xorVectors(four, fragments[i]);
-
-        return four;
+        return res;
     };
     
-    auto _hash7 = [this, &res, &text]() -> std::vector<uint8_t> {
-        // second 7 bytes
-        std::vector<uint8_t> seven;
-        std::vector<std::vector<uint8_t>> fragments;
-        // xor Sbox
+    auto _hash7 = [this, &text]() -> std::vector<uint8_t> {
+        const auto SEVEN = 7;
+        std::vector<uint8_t> res(SEVEN, 0);
+        // get Sbox for current text
         auto cur_Sbox = Sbox;
         for(int i = 0; i < cur_Sbox.size(); ++i)
             cur_Sbox[i] ^= text[0];
 
-        // replace all characters by Sbox
-        for (size_t i = 0; i < text.size(); i += 7) {
-            std::vector<uint8_t> vec;
-            for(int j = 0; j < 7; j++){
+        for (size_t i = 0; i < text.size(); i += SEVEN) {
+            std::vector<uint8_t> fragment;
+            for(int j = 0; j < SEVEN; j++){
                 if(i + j >= text.size())
                     break;
-                vec.push_back(cur_Sbox[text[i + j]]);
+                fragment.push_back(cur_Sbox[text[i + j]]);
             }
-            fragments.push_back(vec);
+            res = xorVectors(res, fragment);
         }
 
-        // xor all fragments
-        seven = fragments[0];
-        for(int i = 1; i < fragments.size(); i++)
-            seven = xorVectors(seven, fragments[i]);
-        
-        return seven;
+        return res;
     };
 
     auto hash4 = std::async(std::launch::async, _hash4);
@@ -113,6 +97,12 @@ std::vector<uint8_t> Server::countHash(const std::string& _text){
 
     return res;
 }
+
+void Server::fillZeros(std::vector<uint8_t>& vec, const size_t& len)
+{
+    while(vec.size() < len)
+        vec.push_back(0);
+};
 
 std::vector<uint8_t> Server::xorVectors(const std::vector<uint8_t>& v1, const std::vector<uint8_t>& v2)
 {
@@ -132,12 +122,6 @@ std::vector<uint8_t> Server::matrixMultiply(std::vector<uint8_t>& vec, const std
         for(int j = 0; j < vec.size(); ++j)
             res[i] += vec[j] * L[j][i];
     return res;
-};
-
-void Server::fillZeros(std::string& vec, const size_t& len)
-{
-    while(vec.size() < len)
-        vec.push_back(0);
 };
 
 void Server::clientHandler(boost::asio::ip::tcp::socket socket)

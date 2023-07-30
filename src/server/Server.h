@@ -24,7 +24,7 @@ protected:
     // function multiply every fragment by the matrix L
     std::vector<uint8_t> matrixMultiply(std::vector<uint8_t>& vec, const std::array<std::array<int, 4>, 4>& L);
     // function that fills the vector <vec> with zeros to the end up to size <len>
-    void fillZeros(std::string& vec, const size_t& len);
+    void fillZeros(std::vector<uint8_t>& vec, const size_t& length);
 // --------------
     void clientHandler(boost::asio::ip::tcp::socket socket);
 };

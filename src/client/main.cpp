@@ -61,7 +61,6 @@ int main(int argc, char* argv[])
         return 0;
 
     auto response = client.getResponse();
-    client.disconnect();
     log(" server response: ");
     if(command == Command::Count)
         std::cout << response;
@@ -69,6 +68,8 @@ int main(int argc, char* argv[])
         for(const auto& i : response)
             std::cout << std::hex << (static_cast<int>(i) & 0xff);
     std::cout << std::endl;
+
+    client.disconnect();
 
     return 0;
 }
