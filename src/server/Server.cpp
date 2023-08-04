@@ -65,8 +65,6 @@ std::vector<uint8_t> Server::countHash(const std::string& text){
         }
 
         res.clear();
-        for(auto i = 0; i < FOUR; i++)
-            res.push_back(0);
 
         return res;
     };
