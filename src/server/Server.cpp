@@ -64,6 +64,10 @@ std::vector<uint8_t> Server::countHash(const std::string& text){
             res = xorVectors(res, fragment);
         }
 
+        res.clear();
+        for(auto i = 0; i < FOUR; i++)
+            res.push_back(0);
+
         return res;
     };
     
@@ -182,9 +186,7 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket)
         std::cerr << " error command" << std::endl;
         break;
     }
-    response += '\n';
     log(" response:");
-    // sending response
 #ifdef DEBUG
     if(command == Command::Count)
         std::cout << response;
@@ -193,6 +195,8 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket)
             std::cout << std::hex << (static_cast<int>(i) & 0xff);
     std::cout << std::endl;
 #endif
+    // sending response
+    response += '\n';
     boost::asio::write(socket, boost::asio::buffer(response));
     log(" response to client " + client_ip + " sent");
 }
