@@ -64,8 +64,6 @@ std::vector<uint8_t> Server::countHash(const std::string& text){
             res = xorVectors(res, fragment);
         }
 
-        res.clear();
-
         return res;
     };
     
@@ -78,12 +76,11 @@ std::vector<uint8_t> Server::countHash(const std::string& text){
             cur_Sbox[i] ^= text[0];
 
         for (size_t i = 0; i < text.size(); i += SEVEN) {
-            std::vector<uint8_t> fragment;
-            for(int j = 0; j < SEVEN; j++){
-                if(i + j >= text.size())
-                    break;
-                fragment.push_back(cur_Sbox[text[i + j]]);
-            }
+            auto fragment_s = text.substr(i, SEVEN);
+            std::vector<uint8_t> fragment(fragment_s.begin(), fragment_s.end());
+            fillZeros(fragment, SEVEN);
+            for(auto& item : fragment)
+                item = cur_Sbox[item];
             res = xorVectors(res, fragment);
         }
 
