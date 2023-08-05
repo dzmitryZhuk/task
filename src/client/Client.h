@@ -22,6 +22,7 @@ public:
     bool sendText(const std::filesystem::path& file, const Command& command);
 
 protected:
+    // reads text from file to m_text
     bool readTextFromFile(const std::filesystem::path& file);
     bool sendText(const Command& command);
 };

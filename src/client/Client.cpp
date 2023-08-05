@@ -26,11 +26,10 @@ bool Client::readTextFromFile(const std::filesystem::path& path)
 {
     std::ifstream file(path);
     if (file.is_open()) {
-        std::string line;
-        while (std::getline(file, line)){
-            line.push_back('\n');
-            m_text += line;
-        }
+        auto size = std::filesystem::file_size(path);
+        std::string text(size, 0);
+        file.read(text.data(), size);
+        m_text = std::move(text);
         file.close();
     } else {
         log_error(" failed read text from file " + path.string());
