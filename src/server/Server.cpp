@@ -187,7 +187,7 @@ void Server::clientHandler(boost::asio::ip::tcp::socket socket)
         std::cout << response;
     else
         for(const auto& i : response)
-            std::cout << std::hex << (static_cast<int>(i) & 0xff);
+            std::cout << std::hex << static_cast<int>((uint8_t)i);
     std::cout << std::endl;
 #endif
     // sending response
