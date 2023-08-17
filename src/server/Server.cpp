@@ -52,14 +52,14 @@ std::vector<uint8_t> Server::countHash(const std::string& text){
         return res;
 
     auto _hash4 = [this, &text]() -> std::vector<uint8_t> {
-        const auto FOUR = 4;
-        std::vector<uint8_t> res(FOUR,0);
+        const auto block_size = 4;
+        std::vector<uint8_t> res(block_size,0);
 
-        for (auto i = 0; i < text.size(); i += FOUR)
+        for (auto i = 0; i < text.size(); i += block_size)
         {
-            auto fragment_s = text.substr(i, FOUR);
+            auto fragment_s = text.substr(i, block_size);
             std::vector<uint8_t> fragment(fragment_s.begin(), fragment_s.end());
-            fillZeros(fragment, FOUR);
+            fillZeros(fragment, block_size);
             fragment = matrixMultiply(fragment, L);
             res = xorVectors(res, fragment);
         }
@@ -68,17 +68,17 @@ std::vector<uint8_t> Server::countHash(const std::string& text){
     };
     
     auto _hash7 = [this, &text]() -> std::vector<uint8_t> {
-        const auto SEVEN = 7;
-        std::vector<uint8_t> res(SEVEN, 0);
+        const auto block_size = 7;
+        std::vector<uint8_t> res(block_size, 0);
         // get Sbox for current text
         auto cur_Sbox = Sbox;
         for(int i = 0; i < cur_Sbox.size(); ++i)
             cur_Sbox[i] ^= text[0];
 
-        for (size_t i = 0; i < text.size(); i += SEVEN) {
-            auto fragment_s = text.substr(i, SEVEN);
+        for (size_t i = 0; i < text.size(); i += block_size) {
+            auto fragment_s = text.substr(i, block_size);
             std::vector<uint8_t> fragment(fragment_s.begin(), fragment_s.end());
-            fillZeros(fragment, SEVEN);
+            fillZeros(fragment, block_size);
             for(auto& item : fragment)
                 item = cur_Sbox[item];
             res = xorVectors(res, fragment);
