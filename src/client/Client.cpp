@@ -13,11 +13,10 @@ bool Client::connect(const std::string& host, const int& port)
     boost::asio::ip::tcp::resolver resolver(ioContext);
     boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, std::to_string(port));
     boost::asio::connect(*m_socket, endpoints, ec);
-    if(ec){
+    if(ec)
         log_error(" failed connecting to host " + host + " via port " + std::to_string(port));
-        return false;
-    }
-    log(" connected to server " + host + " on port " + std::to_string(port));
+    else
+        log(" connected to server " + host + " on port " + std::to_string(port));
 
     return m_socket->is_open();
 }
