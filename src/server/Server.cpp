@@ -75,7 +75,7 @@ std::vector<uint8_t> Server::countHash(const std::string& text){
         for(int i = 0; i < cur_Sbox.size(); ++i)
             cur_Sbox[i] ^= text[0];
 
-        for (size_t i = 0; i < text.size(); i += block_size) {
+        for(int i = 0; i < text.size(); i += block_size) {
             auto fragment_s = text.substr(i, block_size);
             std::vector<uint8_t> fragment(fragment_s.begin(), fragment_s.end());
             fillZeros(fragment, block_size);
