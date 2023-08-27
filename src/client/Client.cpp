@@ -26,9 +26,8 @@ bool Client::readTextFromFile(const std::filesystem::path& path)
     std::ifstream file(path);
     if (file.is_open()) {
         auto size = std::filesystem::file_size(path);
-        std::string text(size, 0);
-        file.read(text.data(), size);
-        m_text = std::move(text);
+        m_text.resize(size);
+        file.read(m_text.data(), size);
         file.close();
     } else {
         log_error(" failed read text from file " + path.string());
