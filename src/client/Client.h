@@ -12,8 +12,12 @@ class Client{
     boost::asio::ip::tcp::socket *m_socket;
     Command m_command;
 public:
+    Client() {
+        m_socket = nullptr;
+    }
     ~Client() {
-        delete m_socket;
+        if(m_socket != nullptr)
+            delete m_socket;
     }
     bool connect(const std::string& host, const int& port);
     std::string getResponse();
